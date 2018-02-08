@@ -25,6 +25,7 @@ module ActiveModel
       @context         = options[:context]
       @namespace       = options[:namespace]
       @key_format      = options[:key_format] || options[:each_serializer].try(:key_format)
+      @child_root      = options.fetch(:child_root, false)
     end
     attr_accessor :object, :scope, :root, :meta_key, :meta, :key_format, :context
 
@@ -41,7 +42,11 @@ module ActiveModel
 
     def serializable_object(options={})
       @object.map do |item|
-        serializer_for(item).serializable_object_with_notification(options)
+        if @child_root.present?
+          { @child_root => serializer_for(item).serializable_object_with_notification(options) }
+        else
+          serializer_for(item).serializable_object_with_notification(options)
+        end
       end
     end
     alias_method :serializable_array, :serializable_object

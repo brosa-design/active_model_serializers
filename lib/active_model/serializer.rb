@@ -91,7 +91,11 @@ end
           @_attributes << striped_attr
 
           define_method striped_attr do
-            object.read_attribute_for_serialization attr
+            if object.is_a?(Hash)
+              object[attr.to_sym]
+            else
+              object.read_attribute_for_serialization attr
+            end
           end unless method_defined?(attr)
         end
       end
